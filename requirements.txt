@@ -1,3 +1,5 @@
 beir
 spacy
 python -m spacy download en_core_web_sm
+rank-bm25
+numpy

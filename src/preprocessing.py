@@ -8,7 +8,7 @@ def tokenize(s):
               if not token.is_punct and not token.is_stop and not token.is_space]
     return tokens
 
-def clean_data(corpus: dict, queries: dict, qrels: dict):
+def clean_data(corpus: dict, queries: dict):
     cleaned_corpus = {}
     for doc_id, doc in corpus.items():
         title = doc.get("title", "")

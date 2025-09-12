@@ -7,16 +7,16 @@ I implemented **BM25 and Latent Semantic Analysis (LSA)** and experimented with 
 ## Objectives
 - Reproduce **classical baselines** (BM25, LSA).  
 - Study the impact of **dimensionality reduction (LSA)**.  
-- Explore whether **query expansion (Rocchio-like feedback)** can improve retrieval in semantic space.  
-- Evaluate methods on **NFCorpus** and **SciDocs** datasets.  
+- Explore whether **query expansion (Rocchio-like feedback)** or **kNN (k-Nearest Neighbors)**  can improve retrieval in semantic space.  
+- Evaluate methods on **NFCorpus, SciDocs, ArguAna, Scifact**  BEIR datasets.  
 
 ---
 
 ## Methods
-- **TF-IDF**: Sparse lexical baseline.  
 - **BM25**: A strong bag-of-words ranking function.  
-- **LSA (Truncated SVD)**: Project TF-IDF into a latent semantic space (dim = 200–1200).  
+- **LSA (Truncated SVD)**: Project TF-IDF into a latent semantic space by reducing dimensions. 
 - **Rocchio-like feedback**: Modify query vectors by shifting towards top-ranked documents (positive feedback) and away from bottom ones (negative feedback).  
+- **kNN (k-Nearest Neighbors)**: 
 
 Metrics used:
 - **nDCG@10** → ranking quality  
