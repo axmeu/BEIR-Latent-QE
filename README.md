@@ -14,9 +14,10 @@ I implemented **BM25 and Latent Semantic Analysis (LSA)** and experimented with 
 
 ## Methods
 - **BM25**: A strong bag-of-words ranking function.  
-- **LSA (Truncated SVD)**: Project TF-IDF into a latent semantic space by reducing dimensions. 
+- **LSA (Truncated SVD)**: Project TF-IDF into a latent semantic space by reducing dimensions.
+- **Zero-shot LSA**: k selected component with a **cumulative explained variance method**
 - **Rocchio-like feedback**: Modify query vectors by shifting towards top-ranked documents (positive feedback) and away from bottom ones (negative feedback).  
-- **kNN (k-Nearest Neighbors)**: 
+- **kNN (k-Nearest Neighbors)**: Shifting query in the latent space towards the 10 closest neighbors
 
 Metrics used:
 - **nDCG@10** → ranking quality  
