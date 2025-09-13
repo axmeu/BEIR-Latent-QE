@@ -12,7 +12,7 @@ class LSAModel:
                  # Rocchio PRF
                  rocchio_prf=False, expansion_nb=30, alpha=1.0, beta=0.75, gamma=0.25,
                  # kNN latent
-                 knn_search=False, k_knn=10):
+                 knn_search=False, k_knn=5):
         
         self.doc_ids = []
         self.doc_texts = []
