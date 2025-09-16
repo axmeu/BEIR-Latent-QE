@@ -1,9 +1,15 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from .lsa_utils import apply_rocchio, select_k_by_variance, select_k_by_elbow, plot_explained_variance
+from .lsa_utils import (
+    apply_rocchio,
+    compute_explained_variance,
+    select_k_by_variance,
+    select_k_by_elbow,
+    plot_explained_variance,
+    animate_elbow
+)
 
 class LSAModel:
     def __init__(self,
@@ -32,39 +38,42 @@ class LSAModel:
         self.beta = beta
         self.gamma = gamma
 
-    def fit(self, corpus, variance_cum=False, elbow=False, plot=False):
+    def fit(self, corpus, variance_cum=False, elbow=False, plot=False, tau=None, gif=False):
+        if tau is not None:
+            self.tau = tau
+
         self.doc_ids = list(corpus.keys())
         self.doc_texts = [doc["text"] for doc in corpus.values()]
         tfidf_matrix = self.vectorizer.fit_transform(self.doc_texts)
 
+        explained_cumsum = compute_explained_variance(tfidf_matrix, max_components=self.prefit_components)
+
+        # Select k
         if self.k_components == "auto":
             if variance_cum:
-                prefit = TruncatedSVD(
-                    n_components=min(self.prefit_components, tfidf_matrix.shape[1]-1),
-                    random_state=1)
-                
-                prefit.fit(tfidf_matrix)
-                k, explained = select_k_by_variance(prefit.singular_values_, tau=self.tau,
-                                                   min_k=self.min_k, max_k=self.max_k)
+                k, _ = select_k_by_variance(explained_cumsum, tau=self.tau,
+                                            min_k=self.min_k, max_k=self.max_k)
                 print(f"[INFO] k retenu par variance cumulative : {k} (≥ {self.tau*100:.0f}% variance)")
 
             elif elbow:
-                k, explained = select_k_by_elbow(tfidf_matrix, max_components=self.prefit_components)
+                k, _ = select_k_by_elbow(explained_cumsum)
                 print(f"[INFO] k retenu par méthode elbow : {k}")
-
             else:
-                k = self.k_components
-                explained = None
-
-            self.svd = TruncatedSVD(n_components=k, random_state=1)
+                k = self.min_k
         else:
-            self.svd = TruncatedSVD(n_components=self.k_components, random_state=1)
-            explained = None
+            k = self.k_components
 
+        self.svd = TruncatedSVD(n_components=k, random_state=1)
         self.doc_vectors = self.svd.fit_transform(tfidf_matrix)
 
-        if plot and explained is not None:
-            plot_explained_variance(explained, method_name="Variance cumulative" if variance_cum else "Elbow")
+        # Plot
+        if plot:
+            plot_explained_variance(explained_cumsum, k=k, method_name="Variance cumulée")
+
+        # GIF
+        if gif and elbow:
+            animate_elbow(explained_cumsum, k_elbow=k)
+
 
     def search(self, query, top_k=10):
         query_tfidf = self.vectorizer.transform([query])
