@@ -1,25 +1,28 @@
 import spacy
 
-def tokenize(s):
-    nlp = spacy.load("en_core_web_sm")
-    s = nlp(s)
-    tokens = [token.text.lower()
-              for token in s
-              if not token.is_punct and not token.is_stop and not token.is_space]
-    return tokens
+nlp = spacy.load("en_core_web_sm", disable=["parser", "ner", "textcat"])
+
+def tokenize_doc(doc):
+    return [
+        (t.lemma_ or t.text).lower()
+        for t in doc
+        if t.is_alpha and not t.is_space and not t.is_punct
+           and not t.is_stop
+           and len(t.text) >= 2
+    ]
 
 def clean_data(corpus: dict, queries: dict):
+    # Corpus
+    ids = list(corpus.keys())
+    texts = [(d.get("title","") + " " + d.get("text","")) for d in corpus.values()]
     cleaned_corpus = {}
-    for doc_id, doc in corpus.items():
-        title = doc.get("title", "")
-        text = doc.get("text", "")
-        full_text = title + " " + text
-        tokens = tokenize(full_text)
-        cleaned_corpus[doc_id] = {"text": " ".join(tokens)}
+    for i, doc in zip(ids, nlp.pipe(texts, batch_size=256)):
+        cleaned_corpus[i] = {"text": " ".join(tokenize_doc(doc))}
 
+    # Queries
+    qids = list(queries.keys())
+    qtexts = list(queries.values())
     cleaned_queries = {}
-    for query_id, query_text in queries.items():
-        tokens = tokenize(query_text)
-        cleaned_queries[query_id] = {"text": " ".join(tokens)}
-
+    for qid, doc in zip(qids, nlp.pipe(qtexts, batch_size=256)):
+        cleaned_queries[qid] = {"text": " ".join(tokenize_doc(doc))}
     return cleaned_corpus, cleaned_queries
