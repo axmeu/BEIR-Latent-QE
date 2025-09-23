@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
 from .lsa_utils import (
     apply_rocchio,
@@ -23,8 +22,10 @@ class LSAModel:
         self.vectorizer = TfidfVectorizer(
             sublinear_tf=True,
             ngram_range=(1, 2),
-            norm="l2"
+            norm="l2",
+            dtype=np.float32
         )
+        
 
         # LSA
         self.k_components = k_components          
@@ -57,7 +58,10 @@ class LSAModel:
 
         # Project into latent space + normalize
         self.svd = TruncatedSVD(n_components=k, random_state=1, n_iter=10)
-        self.doc_vectors = normalize(self.svd.fit_transform(tfidf_matrix), norm="l2")
+        mat_lsa = self.svd.fit_transform(tfidf_matrix)
+        self.doc_vectors = normalize(mat_lsa, norm="l2", copy=False).astype(np.float32, copy=False)
+        self.svd.components_ = self.svd.components_.astype(np.float32, copy=False)
+        del mat_lsa, tfidf_matrix
 
         # Visuals
         if plot:
@@ -68,7 +72,7 @@ class LSAModel:
     def search(self, query, top_k=10):
         query_tfidf = self.vectorizer.transform([query])
         query_vec = self.svd.transform(query_tfidf)
-        query_vec = normalize(query_vec, norm="l2")
+        query_vec = normalize(query_vec, norm="l2", copy=False).astype(np.float32, copy=False)  # (1, k)
 
         if self.rocchio_prf:
             query_vec = apply_rocchio(
@@ -76,7 +80,8 @@ class LSAModel:
                 posneg=self.posneg, alpha=self.alpha, 
                 beta=self.beta, gamma=self.gamma,
             )
-
-        scores = cosine_similarity(query_vec, self.doc_vectors).flatten()
+            query_vec = query_vec.astype(np.float32, copy=False)
+            
+        scores = self.doc_vectors @ query_vec.ravel() 
         top_indices = np.argsort(scores)[::-1][:top_k]
         return [(self.doc_ids[i], scores[i]) for i in top_indices]
