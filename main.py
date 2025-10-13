@@ -71,4 +71,4 @@ if __name__ == "__main__":
     main()
 
 
-#python .\main.py --dataset nfcorpus --model bm25
+
