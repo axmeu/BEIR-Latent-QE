@@ -24,7 +24,7 @@ avoiding a big computation time and memory cost. It also aimed to explore query 
  
 
 Metrics used:
-- **nDCG@10** : ranking quality  
+- **NDCG@10** : ranking quality  
 - **Recall@100** : coverage of relevant documents  
 
 ### Heuristic dimensionality (Elbow method)
@@ -41,7 +41,7 @@ a prefit SVD is computed on 1000 components, and the elbow point is detected mat
 
 ## Results
 
-### nDCG@10
+### NDCG@10
 | Dataset           |   BM25  |  LSA   | LSA + PRF |        
 |-------------------|------|--------|-----------|
 | NFCorpus          | 0.304 | **0.310** | 0.303 |
@@ -69,7 +69,7 @@ However, it underperforms significantly on large and heterogeneous datasets such
 
 Another important result is that by estimating *k* with the cumulative explained variance from a 1000 components prefit, the elbow occurs on all dataset around 300 - 330 components. It can be explained by the properties of TF-IDF matrix where the singular values drop because of the law of Zipf. Most of the meaningful variance is captured by the first few hundred dimensions; selecting around 300 components by default could show very similar results as those previously observed, while saving significant computing time and memory. 
 
-The **Rocchio PRF** slightly improves recall on some datasets (*NFCorpus*, *ArguAna*) but has marginal or negative effects on others and never surpasses the other tested models in precision. This suggests that while PRF helps densify local semantic neighborhoods, it can also add noise and fails to catch the best documents. 
+The **Rocchio PRF** slightly improves recall on some datasets (*NFCorpus*, *ArguAna*) but has marginal or negative effects on others and never surpasses the other tested models in ranking quality (NDCG). This suggests that while PRF helps densify local semantic neighborhoods, it can also add noise and fails to catch the best documents. 
 In latent space, the PRF tends to **fail at reliably shifting the query** vector toward truly relevant documents, being **too dependant on the initial ranking**, making it a too naive method or simply unadapted with the zero-shot LSA experimented. 
 
 The experiments show that a *zero-shot LSA* using a heuristically chosen *k* components underperforms compared to a **classical empirically tuned LSA** configured on each individual corpora.
