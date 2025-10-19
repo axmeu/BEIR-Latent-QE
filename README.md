@@ -56,7 +56,7 @@ a prefit SVD is computed on 1000 components, and the elbow point is detected mat
 | NFCorpus          | 0.235 | 0.307 | **0.313** |
 | Scidocs           | **0.348** | 0.298 | 0.301 |
 | Arguana           | 0.962 | 0.987 | **0.989** |
-| Scifact           | 0.874 | **0.843** | 0.837 |
+| Scifact           | **0.874** | 0.843 | 0.837 |
 
 ---
 
