@@ -1,7 +1,7 @@
 # BEIR-Latent-methods-Exploration
 This academic project explores **classical Information Retrieval (IR)** using the [BEIR benchmark](https://github.com/beir-cellar/beir), as a small extension of
 an undergraduate work at university Paris Cité.
-I implemented **BM25 and Latent Semantic Analysis (LSA)** and experimented with a **Rocchio *Pseudo Relevance Feedback* (PRF)**, built on a **zero-shot LSA with heuristically selected k components**.
+I implemented **BM25 and Latent Semantic Analysis (LSA)** and experimented with a **Rocchio *Pseudo Relevance Feedback* (PRF)**, built on a **LSA with heuristically selected k components**.
 
 The goal was to explore whether it was possible to automatically find a good trade-off in the number of LSA components, maintaining a sufficient retrieval quality while 
 avoiding a big computation time and memory cost. It also aimed to explore query expansion by experimenting a Rocchio PRF algorithm directly in the semantic space (https://en.wikipedia.org/wiki/Rocchio_algorithm), as it is possible to automatically get positive and negative feedback from a subset of similar documents. 
@@ -19,7 +19,7 @@ avoiding a big computation time and memory cost. It also aimed to explore query 
 ## Methods
 - **BM25**: A well known and classical strong bag-of-words ranking function.  
 - **LSA**: Projects a TF-IDF matrix into a latent semantic space by reducing dimensions by *Singular Value Decomposition*.
-- **Zero-shot LSA**: The number of component *k* is heuristically selected via the elbow method on a prefit SVD variance curve (see GIF below).
+- **LSA**: The number of component *k* is heuristically selected via the elbow method on a prefit SVD variance curve (see GIF below).
 - **Rocchio feedback**: Modifies query vectors by shifting towards top-ranked documents (positive feedback) and away from bottom ones (negative feedback). 
  
 
@@ -70,6 +70,6 @@ However, it underperforms significantly on large and heterogeneous datasets such
 Another important result is that by estimating *k* with the cumulative explained variance from a 1000 components prefit, the elbow occurs on all dataset around 300 - 330 components. It can be explained by the properties of TF-IDF matrix where the singular values drop because of the law of Zipf. Most of the meaningful variance is captured by the first few hundred dimensions; selecting around 300 components by default could show very similar results as those previously observed, while saving significant computing time and memory. 
 
 The **Rocchio PRF** slightly improves recall on some datasets (*NFCorpus*, *ArguAna*) but has marginal or negative effects on others and never surpasses the other tested models in ranking quality (NDCG). This suggests that while PRF helps densify local semantic neighborhoods, it can also add noise and fails to catch the best documents. 
-In latent space, the PRF tends to **fail at reliably shifting the query** vector toward truly relevant documents, being **too dependant on the initial ranking**, making it a too naive method or simply unadapted with the zero-shot LSA experimented. 
+In latent space, the PRF tends to **fail at reliably shifting the query** vector toward truly relevant documents, being **too dependant on the initial ranking**, making it a too naive method or simply unadapted with the LSA experimented. 
 
-The experiments show that a *zero-shot LSA* using a heuristically chosen *k* components underperforms compared to a **classical empirically tuned LSA** configured on each individual corpora.
+The experiments show that a LSA using a heuristically chosen *k* components underperforms compared to a **classical empirically tuned LSA** configured on each individual corpora.
